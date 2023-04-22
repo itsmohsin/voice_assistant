@@ -73,10 +73,10 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: Cera Pro
+    - family: Cera-Pro
       fonts:
-        - asset: assets/fonts/Cera-Pro-Bold.ttf
-        - asset: assets/fonts/Cera-Pro-Medium.ttf
+        - asset: assets/fonts/Cera-Pro-Bold.otf
+        - asset: assets/fonts/Cera-Pro-Medium.otf
           style: italic
   #   - family: Trajan Pro
   #     fonts:
