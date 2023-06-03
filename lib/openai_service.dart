@@ -4,6 +4,7 @@ import 'package:voice_assistant/secrets.dart';
 
 class OpenAIService {
   final List<Map<String, String>> messages = [];
+
   Future<String> isArtPromptAPI(String prompt) async {
     try {
       final res = await http.post(
@@ -23,7 +24,7 @@ class OpenAIService {
           ]
         }),
       );
-
+      print(res.body);
       if (res.statusCode == 200) {
         String content =
             jsonDecode(res.body)['choices'][0]['message']['content'];
@@ -34,8 +35,6 @@ class OpenAIService {
           case 'yes':
           case 'Yes.':
           case 'yes.':
-          case 'y':
-          case 'Y':
             final res = await chatGPTAPI(prompt);
             return res;
           default:
