@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 import 'package:voice_assistant/feature_box.dart';
+import 'package:voice_assistant/openai_service.dart';
 import 'package:voice_assistant/pallete.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,16 +13,54 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final speechToText = SpeechToText();
+  String lastWords = '';
+  final OpenAIService openAIService = OpenAIService();
+
+  @override
+  void initState() {
+    super.initState();
+    initSpeechToText();
+  }
+
+  Future<void> initSpeechToText() async {
+    await speechToText.initialize();
+    setState(() {});
+  }
+
+  Future<void> startListening() async {
+    await speechToText.listen(onResult: onSpeechResult);
+    setState(() {});
+  }
+
+  Future<void> stopListening() async {
+    await speechToText.stop();
+    setState(() {});
+  }
+
+  void onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      lastWords = result.recognizedWords;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    speechToText.stop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Ali',
-          ),
-          leading: const Icon(Icons.menu),
+      appBar: AppBar(
+        title: const Text(
+          'Allen',
         ),
-        body: SingleChildScrollView(
+        leading: const Icon(Icons.menu),
+      ),
+      body: SingleChildScrollView(
+        child: SingleChildScrollView(
           child: Column(
             children: [
               // vrttual assistant picture
@@ -94,8 +135,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               // features list
-              Column(
-                children: const [
+              const Column(
+                children: [
                   FeatureBox(
                     color: Pallete.firstSuggestionBoxColor,
                     headerText: 'Chat GPT',
@@ -119,10 +160,22 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Pallete.firstSuggestionBoxColor,
-          onPressed: () {},
-          child: const Icon(Icons.mic),
-        ));
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Pallete.firstSuggestionBoxColor,
+        onPressed: () async {
+          if (await speechToText.hasPermission && speechToText.isNotListening) {
+            await startListening();
+          } else if (speechToText.isListening) {
+            final speech = await openAIService.isArtPromptAPI(lastWords);
+            print(speech);
+            await stopListening();
+          } else {
+            initSpeechToText();
+          }
+        },
+        child: const Icon(Icons.mic),
+      ),
+    );
   }
 }
